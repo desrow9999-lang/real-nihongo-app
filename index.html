@@ -1,0 +1,415 @@
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-RealNihongo | 現場のリアル日本語学習</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .chat-bubble-ai {
+      background: #1e293b;
+      border-left: 4px solid #10b981;
+    }
+    .chat-bubble-user {
+      background: #3b82f6;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col pb-20">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 glass-card px-4 py-3 flex items-center justify-between border-b border-slate-800">
+    <div class="flex items-center space-x-2">
+      <span class="text-2xl">🇯🇵</span>
+      <div>
+        <h1 class="font-bold text-base text-white leading-tight">AI-RealNihongo</h1>
+        <p class="text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">現場のリアル日本語</p>
+      </div>
+    </div>
+    <button onclick="openApiModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-full border border-slate-700 flex items-center gap-1.5">
+      <i class="fa-solid fa-key text-amber-400"></i>
+      <span id="apiStatusText">API設定</span>
+    </button>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="px-4 pt-3 flex gap-2 overflow-x-auto text-xs no-scrollbar">
+    <button id="tab-chat" onclick="switchTab('chat')" class="flex-1 min-w-[100px] py-2 px-3 rounded-xl font-bold bg-emerald-500 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+      <i class="fa-solid fa-comments"></i> AI会話練習
+    </button>
+    <button id="tab-cards" onclick="switchTab('cards')" class="flex-1 min-w-[100px] py-2 px-3 rounded-xl font-bold bg-slate-800 text-slate-400 flex items-center justify-center gap-2">
+      <i class="fa-solid fa-[#10b981] fa-bolt"></i> 教科書 vs 現場
+    </button>
+    <button id="tab-phrases" onclick="switchTab('phrases')" class="flex-1 min-w-[100px] py-2 px-3 rounded-xl font-bold bg-slate-800 text-slate-400 flex items-center justify-center gap-2">
+      <i class="fa-solid fa-layer-group"></i> 必修フレーズ
+    </button>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 p-4 max-w-lg mx-auto w-full">
+
+    <!-- TAB 1: AI CHAT (ROLEPLAY) -->
+    <section id="section-chat" class="space-y-4">
+      
+      <!-- Scenario Selector -->
+      <div class="glass-card p-3 rounded-2xl">
+        <label class="block text-xs font-semibold text-slate-400 mb-1.5">シチュエーション選択:</label>
+        <select id="scenarioSelect" onchange="resetChat()" class="w-full bg-slate-900 border border-slate-700 text-sm rounded-xl p-2.5 text-white focus:ring-2 focus:ring-emerald-500 outline-none">
+          <option value="conveni">🏪 コンビニ（温め・袋のやり取り）</option>
+          <option value="izakaya">🍺 居酒屋（注文・お会計）</option>
+          <option value="interview">💼 バイト面接（挨拶・シフト調整）</option>
+          <option value="taxi">🚕 タクシー・道案内（行き方）</option>
+        </select>
+      </div>
+
+      <!-- Chat Window -->
+      <div id="chatBox" class="glass-card rounded-2xl p-4 min-h-[360px] max-h-[420px] overflow-y-auto space-y-3">
+        <!-- Messages dynamically populated -->
+      </div>
+
+      <!-- Input Area -->
+      <div class="flex gap-2 items-center">
+        <input type="text" id="userInput" placeholder="日本語で返信してみよう..." onkeypress="handleKeyPress(event)"
+          class="flex-1 bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        <button onclick="sendMessage()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 p-3 rounded-2xl font-bold transition shadow-lg shadow-emerald-500/20 flex items-center justify-center w-12 h-12">
+          <i class="fa-solid fa-paper-plane text-lg"></i>
+        </button>
+      </div>
+    </section>
+
+
+    <!-- TAB 2: REAL VS TEXTBOOK -->
+    <section id="section-cards" class="hidden space-y-3">
+      <p class="text-xs text-slate-400">教科書の表現と、日本の現場で実際に使われている表現の違いを比較！</p>
+      
+      <div class="glass-card p-4 rounded-2xl space-y-2 relative">
+        <span class="text-[10px] font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-md">コンビニ・接客</span>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-500 block">📖 教科書</span>
+            <p class="text-sm font-semibold text-slate-300">温めますか？</p>
+            <span class="text-[11px] text-slate-500">Atatame masu ka?</span>
+          </div>
+          <div class="bg-emerald-950/40 p-3 rounded-xl border border-emerald-500/30">
+            <span class="text-[10px] text-emerald-400 font-bold block">🔥 リアル現場</span>
+            <p class="text-sm font-bold text-emerald-200">あたためますー？</p>
+            <span class="text-[11px] text-emerald-400/80">Atatame masu~?</span>
+          </div>
+        </div>
+        <button onclick="speakText('あたためますー？')" class="mt-2 text-xs text-emerald-400 flex items-center gap-1">
+          <i class="fa-solid fa-volume-high"></i> 音声を聞く
+        </button>
+      </div>
+
+      <div class="glass-card p-4 rounded-2xl space-y-2">
+        <span class="text-[10px] font-bold bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-md">断るとき</span>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-500 block">📖 教科書</span>
+            <p class="text-sm font-semibold text-slate-300">結構です。</p>
+            <span class="text-[11px] text-slate-500">Kekkou desu.</span>
+          </div>
+          <div class="bg-emerald-950/40 p-3 rounded-xl border border-emerald-500/30">
+            <span class="text-[10px] text-emerald-400 font-bold block">🔥 リアル現場</span>
+            <p class="text-sm font-bold text-emerald-200">あ、大丈夫です〜</p>
+            <span class="text-[11px] text-emerald-400/80">A, daijoubu desu~</span>
+          </div>
+        </div>
+        <button onclick="speakText('あ、大丈夫です')" class="mt-2 text-xs text-emerald-400 flex items-center gap-1">
+          <i class="fa-solid fa-volume-high"></i> 音声を聞く
+        </button>
+      </div>
+
+      <div class="glass-card p-4 rounded-2xl space-y-2">
+        <span class="text-[10px] font-bold bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-md">相づち・了解</span>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-500 block">📖 教科書</span>
+            <p class="text-sm font-semibold text-slate-300">承知いたしました。</p>
+            <span class="text-[11px] text-slate-500">Shouchi itashimashita.</span>
+          </div>
+          <div class="bg-emerald-950/40 p-3 rounded-xl border border-emerald-500/30">
+            <span class="text-[10px] text-emerald-400 font-bold block">🔥 リアル現場</span>
+            <p class="text-sm font-bold text-emerald-200">了解です！ / わかりました！</p>
+            <span class="text-[11px] text-emerald-400/80">Ryoukai desu!</span>
+          </div>
+        </div>
+        <button onclick="speakText('了解です！')" class="mt-2 text-xs text-emerald-400 flex items-center gap-1">
+          <i class="fa-solid fa-volume-high"></i> 音声を聞く
+        </button>
+      </div>
+    </section>
+
+
+    <!-- TAB 3: ESSENTIAL PHRASES -->
+    <section id="section-phrases" class="hidden space-y-3">
+      <p class="text-xs text-slate-400">バイトや日常生活で毎日使うクッション言葉・相づち</p>
+
+      <div class="grid grid-cols-1 gap-2.5">
+        <div onclick="speakText('少々お待ちくださーい')" class="glass-card p-3.5 rounded-xl flex items-center justify-between active:scale-95 transition">
+          <div>
+            <span class="text-xs text-emerald-400 font-bold">はーい、少々お待ちくださーい</span>
+            <p class="text-[11px] text-slate-400">Just a moment please (Friendly customer service)</p>
+          </div>
+          <i class="fa-solid fa-circle-play text-emerald-400 text-lg"></i>
+        </div>
+
+        <div onclick="speakText('お会計になります')" class="glass-card p-3.5 rounded-xl flex items-center justify-between active:scale-95 transition">
+          <div>
+            <span class="text-xs text-emerald-400 font-bold">お会計になります〜</span>
+            <p class="text-[11px] text-slate-400">That comes to [amount] (Register phrasing)</p>
+          </div>
+          <i class="fa-solid fa-circle-play text-emerald-400 text-lg"></i>
+        </div>
+
+        <div onclick="speakText('なるほどですね')" class="glass-card p-3.5 rounded-xl flex items-center justify-between active:scale-95 transition">
+          <div>
+            <span class="text-xs text-emerald-400 font-bold">なるほどですね！</span>
+            <p class="text-[11px] text-slate-400">I see! / Makes sense! (Modern casual-business filler)</p>
+          </div>
+          <i class="fa-solid fa-circle-play text-emerald-400 text-lg"></i>
+        </div>
+
+        <div onclick="speakText('おつかれさまです')" class="glass-card p-3.5 rounded-xl flex items-center justify-between active:scale-95 transition">
+          <div>
+            <span class="text-xs text-emerald-400 font-bold">おつかれさまです！</span>
+            <p class="text-[11px] text-slate-400">Good job / Hello / Bye (Universal workplace greeting)</p>
+          </div>
+          <i class="fa-solid fa-circle-play text-emerald-400 text-lg"></i>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- API KEY MODAL -->
+  <div id="apiModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+    <div class="glass-card p-5 rounded-2xl max-w-sm w-full space-y-4">
+      <h3 class="text-sm font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-sliders text-emerald-400"></i> AI API設定
+      </h3>
+      <p class="text-xs text-slate-400 leading-relaxed">
+        GeminiまたはOpenAIのAPI Keyを設定すると、完全に自由なリアルタイムAI対話が可能になります（設定しない場合はシミュレーションAIが自動応答します）。
+      </p>
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Gemini API Key</label>
+        <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-emerald-500">
+      </div>
+      <div class="flex gap-2 justify-end pt-2">
+        <button onclick="closeApiModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800">閉じる</button>
+        <button onclick="saveApiKey()" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // System Scenarios Initial Data
+    const scenarios = {
+      conveni: [
+        { role: 'assistant', text: 'いらっしゃいませー！お弁当温めますか？', romaji: 'Irasshaimase~! Obento atatame masu ka?', english: 'Welcome! Would you like your bento warmed up?' }
+      ],
+      izakaya: [
+        { role: 'assistant', text: 'いらっしゃいませ！何名様ですかー？', romaji: 'Irasshaimase! Nan-mei sama desu ka~?', english: 'Welcome! How many people in your party?' }
+      ],
+      interview: [
+        { role: 'assistant', text: '本日面接に来ていただいた〇〇さんですね。よろしくお願いします！まずは簡単に自己紹介してもらえますか？', romaji: 'Hojitsu mensetsu ni kite itadaita... Yoroshiku onegai shimasu!', english: 'Thanks for coming today. Could you briefly introduce yourself?' }
+      ],
+      taxi: [
+        { role: 'assistant', text: 'どちらまで行きますかー？', romaji: 'Dochira made ikimasu ka~?', english: 'Where are you headed to today?' }
+      ]
+    };
+
+    let currentScenario = 'conveni';
+    let chatHistory = [];
+
+    function init() {
+      resetChat();
+      checkApiKey();
+    }
+
+    function resetChat() {
+      currentScenario = document.getElementById('scenarioSelect').value;
+      chatHistory = [...scenarios[currentScenario]];
+      renderChat();
+    }
+
+    function renderChat() {
+      const chatBox = document.getElementById('chatBox');
+      chatBox.innerHTML = '';
+
+      chatHistory.forEach((msg, idx) => {
+        const div = document.createElement('div');
+        div.className = `p-3 rounded-2xl text-xs max-w-[85%] ${
+          msg.role === 'user' 
+            ? 'chat-bubble-user ml-auto text-white' 
+            : 'chat-bubble-ai mr-auto text-slate-200'
+        }`;
+
+        let html = `<p class="font-semibold text-sm">${msg.text}</p>`;
+        if (msg.romaji) {
+          html += `<p class="text-[10px] text-slate-400 mt-1">${msg.romaji}</p>`;
+        }
+        if (msg.english) {
+          html += `<p class="text-[10px] text-emerald-400/90 italic">${msg.english}</p>`;
+        }
+
+        if (msg.role === 'assistant') {
+          html += `<button onclick="speakText('${msg.text.replace(/'/g, "\\'")}')" class="mt-2 text-[10px] text-emerald-400 flex items-center gap-1 opacity-80 hover:opacity-100">
+            <i class="fa-solid fa-volume-high"></i> 発音を聞く
+          </button>`;
+        }
+
+        div.innerHTML = html;
+        chatBox.appendChild(div);
+      });
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('userInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      // Add User Message
+      chatHistory.push({ role: 'user', text: text });
+      input.value = '';
+      renderChat();
+
+      // Simulated AI or Gemini Response
+      setTimeout(() => {
+        generateAiReply(text);
+      }, 700);
+    }
+
+    function generateAiReply(userText) {
+      const apiKey = localStorage.getItem('gemini_api_key');
+      
+      if (apiKey) {
+        // Call Gemini API directly
+        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `You are a Japanese conversation partner simulating scenario: ${currentScenario}.
+User said: "${userText}".
+Respond naturally as a Japanese store staff / interviewer. Keep response short (1-2 sentences) in natural spoken Japanese with romaji and English translation. Format JSON: {"text": "日本語", "romaji": "romaji", "english": "translation"}`
+              }]
+            }]
+          })
+        }).then(res => res.json()).then(data => {
+          try {
+            const replyText = data.candidates[0].content.parts[0].text;
+            const cleaned = replyText.replace(/```json|```/g, '').trim();
+            const parsed = JSON.parse(cleaned);
+            chatHistory.push({ role: 'assistant', text: parsed.text, romaji: parsed.romaji, english: parsed.english });
+          } catch(e) {
+            fallbackAiReply(userText);
+          }
+          renderChat();
+        }).catch(() => {
+          fallbackAiReply(userText);
+          renderChat();
+        });
+      } else {
+        fallbackAiReply(userText);
+        renderChat();
+      }
+    }
+
+    function fallbackAiReply(userText) {
+      let reply = { role: 'assistant', text: 'あ、大丈夫です〜！他にご注文はありますか？', romaji: 'A, daijoubu desu~! Hoka ni go-chuumon wa ari-masu ka?', english: 'Ah, no problem! Anything else you would like?' };
+      if (userText.includes('袋') || userText.includes('ふくろ')) {
+        reply = { role: 'assistant', text: '袋はお付けしますか？（＋3円になります）', romaji: 'Fukuro wa otsuke shimasu ka?', english: 'Would you like a plastic bag? (+3 yen)' };
+      } else if (userText.includes('温め') || userText.includes('おねがい')) {
+        reply = { role: 'assistant', text: 'はーい、少々お待ちくださーい！', romaji: 'Ha-i, shou-shou omachi kudasai~!', english: 'Sure thing, just a moment please!' };
+      }
+      chatHistory.push(reply);
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') sendMessage();
+    }
+
+    // TTS Function
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const uttr = new SpeechSynthesisUtterance(text);
+        uttr.lang = 'ja-JP';
+        uttr.rate = 0.9;
+        window.speechSynthesis.speak(uttr);
+      }
+    }
+
+    // Tab Switching
+    function switchTab(tab) {
+      document.getElementById('section-chat').classList.add('hidden');
+      document.getElementById('section-cards').classList.add('hidden');
+      document.getElementById('section-phrases').classList.add('hidden');
+
+      document.getElementById('tab-chat').className = "flex-1 min-w-[100px] py-2 px-3 rounded-xl font-bold bg-slate-800 text-slate-400 flex items-center justify-center gap-2";
+      document.getElementById('tab-cards').className = "flex-1 min-w-[100px] py-2 px-3 rounded-xl font-bold bg-slate-800 text-slate-400 flex items-center justify-center gap-2";
+      document.getElementById('tab-phrases').className = "flex-1 min-w-[100px] py-2 px-3 rounded-xl font-bold bg-slate-800 text-slate-400 flex items-center justify-center gap-2";
+
+      if (tab === 'chat') {
+        document.getElementById('section-chat').classList.remove('hidden');
+        document.getElementById('tab-chat').className = "flex-1 min-w-[100px] py-2 px-3 rounded-xl font-bold bg-emerald-500 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20";
+      } else if (tab === 'cards') {
+        document.getElementById('section-cards').classList.remove('hidden');
+        document.getElementById('tab-cards').className = "flex-1 min-w-[100px] py-2 px-3 rounded-xl font-bold bg-emerald-500 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20";
+      } else if (tab === 'phrases') {
+        document.getElementById('section-phrases').classList.remove('hidden');
+        document.getElementById('tab-phrases').className = "flex-1 min-w-[100px] py-2 px-3 rounded-xl font-bold bg-emerald-500 text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20";
+      }
+    }
+
+    // API Modal Functions
+    function openApiModal() {
+      document.getElementById('apiModal').classList.remove('hidden');
+    }
+    function closeApiModal() {
+      document.getElementById('apiModal').classList.add('hidden');
+    }
+    function saveApiKey() {
+      const key = document.getElementById('apiKeyInput').value.trim();
+      if (key) {
+        localStorage.setItem('gemini_api_key', key);
+        alert('API Keyを保存しました！');
+      } else {
+        localStorage.removeItem('gemini_api_key');
+      }
+      checkApiKey();
+      closeApiModal();
+    }
+    function checkApiKey() {
+      const key = localStorage.getItem('gemini_api_key');
+      const text = document.getElementById('apiStatusText');
+      if (key) {
+        text.textContent = "API連携中";
+        text.className = "text-emerald-400 font-bold";
+      } else {
+        text.textContent = "API設定";
+      }
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
+```
