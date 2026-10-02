@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI-RealNihongo | 現場のリアル日本語</title>
+  <title>AI-RealNihongo | Real Japanese Phrase Practice</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -30,21 +30,21 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between p-2 sm:p-4">
 
-  <!-- ヘッダー -->
+  <!-- Header -->
   <header class="max-w-md mx-auto w-full flex justify-between items-center py-2 px-1 border-b border-slate-700">
     <div class="flex items-center space-x-2">
       <span class="text-2xl">🇯🇵</span>
       <div>
         <h1 class="font-bold text-lg leading-tight text-emerald-400">AI-RealNihongo</h1>
-        <p class="text-xs text-slate-400">現場のリアル日本語</p>
+        <p class="text-xs text-slate-400">Master Practical Japanese</p>
       </div>
     </div>
     <button onclick="toggleApiModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 px-2.5 py-1.5 rounded-lg flex items-center gap-1">
-      🔑 API設定
+      🔑 API Settings
     </button>
   </header>
 
-  <!-- 広告エリア 1 (上部) -->
+  <!-- Ad Area 1 (Top) -->
   <div class="max-w-md mx-auto w-full my-2">
     <div class="ad-container">
       <a href="https://px.a8.net/svt/ejp?a8mat=4BE70S+8C2HO2+55QO+5ZEMP" rel="nofollow" target="_blank">
@@ -54,87 +54,89 @@
     </div>
   </div>
 
-  <!-- タブナビゲーション -->
+  <!-- Tab Navigation -->
   <main class="max-w-md mx-auto w-full flex-1 flex flex-col">
     <div class="grid grid-cols-3 gap-1 bg-slate-800/80 p-1 rounded-xl my-2 text-xs font-medium text-center">
-      <button id="tab-chat" onclick="switchTab('chat')" class="py-2 rounded-lg bg-emerald-500 text-slate-950 font-bold transition">AI会話練習</button>
-      <button id="tab-vs" onclick="switchTab('vs')" class="py-2 rounded-lg text-slate-400 hover:text-slate-200 transition">教科書 vs 現場</button>
-      <button id="tab-phrase" onclick="switchTab('phrase')" class="py-2 rounded-lg text-slate-400 hover:text-slate-200 transition">必修フレーズ</button>
+      <button id="tab-chat" onclick="switchTab('chat')" class="py-2 rounded-lg bg-emerald-500 text-slate-950 font-bold transition">AI Roleplay</button>
+      <button id="tab-vs" onclick="switchTab('vs')" class="py-2 rounded-lg text-slate-400 hover:text-slate-200 transition">Textbook vs Real</button>
+      <button id="tab-phrase" onclick="switchTab('phrase')" class="py-2 rounded-lg text-slate-400 hover:text-slate-200 transition">Essential Tips</button>
     </div>
 
-    <!-- コンテンツ1: AI会話練習 -->
+    <!-- Content 1: AI Roleplay Chat -->
     <div id="content-chat" class="flex-1 flex flex-col gap-2">
       <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-2.5">
-        <label class="text-xs text-slate-400 block mb-1">シチュエーション選択:</label>
+        <label class="text-xs text-slate-400 block mb-1">Select Situation:</label>
         <select id="situation-select" onchange="resetChat()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg p-2 focus:ring-1 focus:ring-emerald-500">
-          <option value="convenience">🏪 コンビニ（温め・袋・ポイントカード）</option>
-          <option value="izakaya">🍺 居酒屋（注文・会計・おすすめ）</option>
-          <option value="parttime">💼 バイト面接・初日の挨拶</option>
-          <option value="train">🚃 駅・電車（乗り換え・トラブル）</option>
+          <option value="convenience">🏪 Convenience Store (Bento heating, Bag, Points)</option>
+          <option value="izakaya">🍺 Izakaya / Pub (Ordering food & drinks)</option>
+          <option value="parttime">💼 Part-time Job (Interview & Greeting)</option>
+          <option value="train">🚃 Train Station (Asking directions & Help)</option>
         </select>
       </div>
 
-      <!-- チャットログ -->
+      <!-- Chat Log -->
       <div id="chat-log" class="flex-1 min-h-[300px] max-h-[420px] overflow-y-auto bg-slate-900/80 border border-slate-800 rounded-xl p-3 flex flex-col gap-3">
-        <!-- 初期メッセージ -->
+        <!-- Initial Message generated dynamically -->
       </div>
 
-      <!-- 入力エリア -->
+      <!-- Input Form -->
       <form onsubmit="sendMessage(event)" class="flex gap-2 my-1">
-        <input type="text" id="user-input" placeholder="日本語で返信してみよう..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+        <input type="text" id="user-input" placeholder="Type your response in Japanese..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
         <button type="submit" id="send-btn" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl transition flex items-center justify-center">
           🚀
         </button>
       </form>
     </div>
 
-    <!-- コンテンツ2: 教科書 vs 現場 -->
+    <!-- Content 2: Textbook vs Real Japanese -->
     <div id="content-vs" class="hidden space-y-3 py-2">
       <div class="bg-slate-800/60 border border-slate-700 p-3 rounded-xl">
-        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">接客・コンビニ</span>
-        <div class="mt-2 text-sm">
-          <p class="text-slate-400">📖 教科書: 「温めますか？」</p>
-          <p class="text-emerald-400 font-bold">🗣️ 現場: 「お弁当温めますか〜？」</p>
-          <p class="text-xs text-slate-300 mt-1">返答パターン: 「あ、大丈夫です」「お願いします」</p>
+        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">Convenience Store</span>
+        <div class="mt-2 text-sm space-y-1">
+          <p class="text-slate-400">📖 Textbook: 「温めますか？」<br><span class="text-xs text-slate-500">Atatame masu ka? (Would you like it warmed up?)</span></p>
+          <p class="text-emerald-400 font-bold">🗣️ Real Shop: 「お弁当温めますか〜？」<br><span class="text-xs text-emerald-300/70">Obento atatame masu ka~?</span></p>
+          <p class="text-xs text-slate-300 mt-1">💡 Quick Reply: "Daijoubu desu" (No need) / "Onegai shimasu" (Yes, please)</p>
         </div>
       </div>
+
       <div class="bg-slate-800/60 border border-slate-700 p-3 rounded-xl">
-        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">バイト・職場</span>
-        <div class="mt-2 text-sm">
-          <p class="text-slate-400">📖 教科書: 「分かりました」</p>
-          <p class="text-emerald-400 font-bold">🗣️ 現場: 「かしこまりました / 了解です！」</p>
-          <p class="text-xs text-slate-300 mt-1">目上の人には「かしこまりました」、同僚には「了解です」を使い分けます。</p>
+        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">Workplace / Job</span>
+        <div class="mt-2 text-sm space-y-1">
+          <p class="text-slate-400">📖 Textbook: 「分かりました」<br><span class="text-xs text-slate-500">Wakarimashita (I understood)</span></p>
+          <p class="text-emerald-400 font-bold">🗣️ Real Workplace: 「かしこまりました / 了解です！」<br><span class="text-xs text-emerald-300/70">Kashikomarimashita (Polite) / Ryokai desu (Casual)</span></p>
+          <p class="text-xs text-slate-300 mt-1">💡 Use "Kashikomarimashita" to bosses/customers, "Ryokai desu" to coworkers.</p>
         </div>
       </div>
+
       <div class="bg-slate-800/60 border border-slate-700 p-3 rounded-xl">
-        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">居酒屋・飲食店</span>
-        <div class="mt-2 text-sm">
-          <p class="text-slate-400">📖 教科書: 「これをください」</p>
-          <p class="text-emerald-400 font-bold">🗣️ 現場: 「とりあえず生（ビール）で！」</p>
-          <p class="text-xs text-slate-300 mt-1">最初のドリンク注文で最も使われる超定番フレーズです。</p>
+        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">Izakaya / Restaurant</span>
+        <div class="mt-2 text-sm space-y-1">
+          <p class="text-slate-400">📖 Textbook: 「これをください」<br><span class="text-xs text-slate-500">Kore wo kudasai (Please give me this)</span></p>
+          <p class="text-emerald-400 font-bold">🗣️ Real Izakaya: 「とりあえず生（ビール）で！」<br><span class="text-xs text-emerald-300/70">Toraiyazu nama de!</span></p>
+          <p class="text-xs text-slate-300 mt-1">💡 The most famous phrase to order a draft beer first upon arriving!</p>
         </div>
       </div>
     </div>
 
-    <!-- コンテンツ3: 必修フレーズ -->
+    <!-- Content 3: Essential Tips -->
     <div id="content-phrase" class="hidden space-y-3 py-2">
       <div class="bg-slate-800/60 border border-slate-700 p-3 rounded-xl flex justify-between items-center">
         <div>
-          <h4 class="font-bold text-sm text-slate-200">「大丈夫です」の3つの意味</h4>
-          <p class="text-xs text-slate-400 mt-1">1. OK (Yes) / 2. 不要 (No) / 3. 問題ない (I'm fine)</p>
+          <h4 class="font-bold text-sm text-slate-200">The Magic Word: "Daijoubu" (大丈夫)</h4>
+          <p class="text-xs text-slate-400 mt-1">Depending on context, it means: 1. Yes / 2. No thanks / 3. I'm okay!</p>
         </div>
         <span class="text-xl">💡</span>
       </div>
       <div class="bg-slate-800/60 border border-slate-700 p-3 rounded-xl flex justify-between items-center">
         <div>
-          <h4 class="font-bold text-sm text-slate-200">「すみません」の万能な使い方</h4>
-          <p class="text-xs text-slate-400 mt-1">謝罪(Sorry)、呼びかけ(Excuse me)、感謝(Thank you)すべてに対応。</p>
+          <h4 class="font-bold text-sm text-slate-200">All-in-One: "Sumimasen" (すみません)</h4>
+          <p class="text-xs text-slate-400 mt-1">Covers: "Excuse me", "Sorry", and "Thank you for your help".</p>
         </div>
         <span class="text-xl">✨</span>
       </div>
     </div>
 
-    <!-- 広告エリア 2 (下部) -->
+    <!-- Ad Area 2 (Bottom) -->
     <div class="w-full my-3">
       <div class="ad-container">
         <a href="https://rpx.a8.net/svt/ejp?a8mat=4BE68R+1823JM+2HOM+6I9N5&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2F0eb4779e.5d30c5ba.0eb4779f.b871e4e3%2Fa26100165665_4BE68R_1823JM_2HOM_6I9N5%3Fpc%3Dhttp%253A%252F%252Ftravel.rakuten.co.jp%252F%26m%3Dhttp%253A%252F%252Ftravel.rakuten.co.jp%252F" rel="nofollow" target="_blank">
@@ -145,19 +147,19 @@
     </div>
   </main>
 
-  <!-- モーダル: APIキー設定 -->
+  <!-- Modal: API Key Settings -->
   <div id="api-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 hidden z-50">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 max-w-xs w-full space-y-4">
       <h3 class="font-bold text-base text-slate-100 flex items-center gap-2">
-        🔑 OpenAI APIキー設定
+        🔑 OpenAI API Key Settings
       </h3>
       <p class="text-xs text-slate-400">
-        ChatGPT (OpenAI) のAPIキーを入力してください。キーはブラウザにのみ安全に保存されます。
+        Enter your OpenAI API key (starts with `sk-`). Your key is stored locally only in your browser.
       </p>
       <input type="password" id="api-key-input" placeholder="sk-..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
       <div class="flex gap-2">
-        <button onclick="saveApiKey()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2 rounded-lg text-xs transition">保存する</button>
-        <button onclick="toggleApiModal()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 px-3 rounded-lg text-xs transition">閉じる</button>
+        <button onclick="saveApiKey()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2 rounded-lg text-xs transition">Save Key</button>
+        <button onclick="toggleApiModal()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 px-3 rounded-lg text-xs transition">Close</button>
       </div>
     </div>
   </div>
@@ -166,10 +168,10 @@
     let apiKey = localStorage.getItem("openai_api_key") || "";
 
     const prompts = {
-      convenience: "あなたは日本のコンビニ店員です。相手は外国人学習者です。お弁当の温め、レジ袋の有無、ポイントカードについてリアルな日本の接客日本語で短く対話してください。",
-      izakaya: "あなたは日本の居酒屋の店員です。注文やおすすめ料理、会計などの接客会話を短く行ってください。",
-      parttime: "あなたは日本のアルバイト面接官または先輩スタッフです。面接や初日の挨拶、指示のやり取りを行ってください。",
-      train: "あなたは日本の駅員または親切な通行人です。電車の乗り換えや道案内の会話を行ってください。"
+      convenience: "You are a Japanese convenience store clerk talking to a foreign customer. Use natural, practical Japanese used in Japanese stores (warm up bento, plastic bags, point cards). For each AI response, provide: 1. The Japanese phrase (with Romaji & English translation), 2. Continue the roleplay naturally, 3. If the user made grammar/phrasing mistakes, kindly explain briefly in English.",
+      izakaya: "You are an Izakaya staff member taking orders. Respond in natural Japanese with Romaji & English translation, and guide the conversation.",
+      parttime: "You are an interviewer or senior staff at a part-time job. Interact in Japanese with Romaji & English translation.",
+      train: "You are a train station staff helping a commuter. Respond in practical Japanese with Romaji & English translation."
     };
 
     function toggleApiModal() {
@@ -184,7 +186,7 @@
       const input = document.getElementById("api-key-input").value.trim();
       apiKey = input;
       localStorage.setItem("openai_api_key", input);
-      alert("APIキーを保存しました！");
+      alert("API Key Saved Successfully!");
       toggleApiModal();
     }
 
@@ -207,14 +209,29 @@
       const sit = document.getElementById("situation-select").value;
       
       let initMsg = "いらっしゃいませー！お弁当温めますか？";
-      if(sit === "izakaya") initMsg = "いらっしゃいませ！何名様ですか〜？";
-      if(sit === "parttime") initMsg = "本日面接のお約束ですね。お名前を教えていただけますか？";
-      if(sit === "train") initMsg = "はい、何かお困りですか？";
+      let romaji = "Irasshaimase~! Obento atatame masu ka?";
+      let english = "Welcome! Would you like your bento warmed up?";
+
+      if(sit === "izakaya") {
+        initMsg = "いらっしゃいませ！何名様ですか〜？";
+        romaji = "Irasshaimase! Nan-mei sama desu ka~?";
+        english = "Welcome! How many people in your party?";
+      } else if(sit === "parttime") {
+        initMsg = "本日面接のお約束ですね。お名前を教えていただけますか？";
+        romaji = "Honjitsu mensetsu no o-yakusoku desu ne. O-namae wo oshiete itadakemasu ka?";
+        english = "You are here for the job interview, right? May I have your name?";
+      } else if(sit === "train") {
+        initMsg = "はい、何かお困りですか？";
+        romaji = "Hai, nan ka o-komari desu ka?";
+        english = "Yes, do you need help with something?";
+      }
 
       chatLog.innerHTML = `
         <div class="bg-slate-800 border-l-4 border-emerald-500 rounded-r-xl p-3 text-xs leading-relaxed space-y-1">
-          <p class="font-bold text-emerald-400">🤖 AI店員</p>
-          <p class="text-slate-100 text-sm">${initMsg}</p>
+          <p class="font-bold text-emerald-400">🤖 AI Staff</p>
+          <p class="text-slate-100 text-sm font-medium">${initMsg}</p>
+          <p class="text-slate-400 text-xs italic">${romaji}</p>
+          <p class="text-emerald-300/80 text-xs">${english}</p>
         </div>
       `;
     }
@@ -227,10 +244,10 @@
 
       const chatLog = document.getElementById("chat-log");
 
-      // ユーザーメッセージ表示
+      // Display User Message
       chatLog.innerHTML += `
         <div class="bg-slate-800/80 border-r-4 border-slate-500 rounded-l-xl p-3 text-xs leading-relaxed self-end w-4/5 text-right space-y-1">
-          <p class="font-bold text-slate-400">👤 あなた</p>
+          <p class="font-bold text-slate-400">👤 You</p>
           <p class="text-slate-100 text-sm">${text}</p>
         </div>
       `;
@@ -242,7 +259,7 @@
         setTimeout(() => {
           chatLog.innerHTML += `
             <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-300">
-              ⚠️ 右上の「🔑 API設定」からOpenAIのAPIキーを設定すると、リアルタイムでAIが返答・指導してくれます！
+              ⚠️ Please set your OpenAI API Key from top-right <strong>"🔑 API Settings"</strong> to start practicing with AI!
             </div>
           `;
           chatLog.scrollTop = chatLog.scrollHeight;
@@ -250,17 +267,17 @@
         return;
       }
 
-      // ローディング表示
+      // Loading Indicator
       const loadingId = "loading-" + Date.now();
       chatLog.innerHTML += `
         <div id="${loadingId}" class="bg-slate-800 border-l-4 border-emerald-500 rounded-r-xl p-3 text-xs leading-relaxed text-slate-400">
-          🤖 考え中...
+          🤖 Thinking...
         </div>
       `;
       chatLog.scrollTop = chatLog.scrollHeight;
 
       const sit = document.getElementById("situation-select").value;
-      const systemPrompt = `${prompts[sit]}\nユーザーの入力した日本語に対して、①自然な返答（会話の続き）をし、②もし不自然な点があれば優しく修正・解説（ひらがなルビ付き）を添えてください。レスポンスは簡潔で分かりやすい日本語で書いてください。`;
+      const systemPrompt = `${prompts[sit]}\nIMPORTANT: Keep the response compact. Provide Japanese, Romaji, English translation, and feedback if needed.`;
 
       try {
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -291,17 +308,17 @@
             </div>
           `;
         } else {
-          chatLog.innerHTML += `<div class="text-xs text-red-400">エラー: APIキーを確認してください。</div>`;
+          chatLog.innerHTML += `<div class="text-xs text-red-400">Error: Invalid API Key. Please check settings.</div>`;
         }
       } catch (err) {
         document.getElementById(loadingId)?.remove();
-        chatLog.innerHTML += `<div class="text-xs text-red-400">通信エラーが発生しました。</div>`;
+        chatLog.innerHTML += `<div class="text-xs text-red-400">Connection error occurred.</div>`;
       }
 
       chatLog.scrollTop = chatLog.scrollHeight;
     }
 
-    // 初期化
+    // Initialize
     resetChat();
   </script>
 </body>
