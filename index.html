@@ -39,13 +39,31 @@
         <p class="text-xs text-slate-400">Master Practical Japanese</p>
       </div>
     </div>
-    <button onclick="toggleApiModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 px-2.5 py-1.5 rounded-lg flex items-center gap-1">
-      🔑 API Settings
-    </button>
+    <div class="flex items-center gap-2">
+      <span id="usage-badge" class="text-[10px] bg-slate-800 text-emerald-400 border border-slate-700 px-2 py-1 rounded-full font-mono">
+        Free: <span id="remaining-count">5</span>/5 left
+      </span>
+      <button onclick="toggleApiModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 px-2 py-1.5 rounded-lg">
+        🔑 API
+      </button>
+    </div>
   </header>
 
+  <!-- Premium Banner -->
+  <div class="max-w-md mx-auto w-full mt-2">
+    <div class="bg-gradient-to-r from-amber-500/20 to-emerald-500/20 border border-amber-500/40 rounded-xl p-2.5 flex justify-between items-center">
+      <div class="text-xs">
+        <p class="font-bold text-amber-300">⭐ Upgrade to Pro Plan</p>
+        <p class="text-slate-300 text-[11px]">Unlimited conversations & advanced feedbacks!</p>
+      </div>
+      <button onclick="togglePaywallModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition shadow-lg">
+        Upgrade
+      </button>
+    </div>
+  </div>
+
   <!-- Ad Area 1 (Top) -->
-  <div class="max-w-md mx-auto w-full my-2">
+  <div class="max-w-md mx-auto w-full my-1">
     <div class="ad-container">
       <a href="https://px.a8.net/svt/ejp?a8mat=4BE70S+8C2HO2+55QO+5ZEMP" rel="nofollow" target="_blank">
         <img border="0" width="468" height="60" alt="" src="https://www23.a8.net/svt/bgt?aid=261002764504&wid=001&eno=01&mid=s00000024072001005000&mc=1">
@@ -75,7 +93,7 @@
       </div>
 
       <!-- Chat Log -->
-      <div id="chat-log" class="flex-1 min-h-[300px] max-h-[420px] overflow-y-auto bg-slate-900/80 border border-slate-800 rounded-xl p-3 flex flex-col gap-3">
+      <div id="chat-log" class="flex-1 min-h-[280px] max-h-[380px] overflow-y-auto bg-slate-900/80 border border-slate-800 rounded-xl p-3 flex flex-col gap-3">
         <!-- Initial Message generated dynamically -->
       </div>
 
@@ -147,6 +165,37 @@
     </div>
   </main>
 
+  <!-- Modal: Paywall / Subscription Upgrade -->
+  <div id="paywall-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-slate-800 border border-amber-500/50 rounded-2xl p-6 max-w-xs w-full text-center space-y-4 shadow-2xl">
+      <div class="text-3xl">🚀</div>
+      <h3 class="font-bold text-lg text-slate-100">
+        Unlock Unlimited AI Practice!
+      </h3>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        You've reached your free daily limit (5 messages). Upgrade to Pro to enjoy unlimited roleplay and master Japanese faster!
+      </p>
+
+      <div class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-left text-xs space-y-2">
+        <p class="font-bold text-emerald-400">✨ Pro Benefits:</p>
+        <ul class="space-y-1 text-slate-300">
+          <li>✅ Unlimited AI conversation turns</li>
+          <li>✅ Instant grammar & Romaji corrections</li>
+          <li>✅ Access all real-world situations</li>
+        </ul>
+      </div>
+
+      <!-- Stripe Payment Link (Linked) -->
+      <a href="https://buy.stripe.com/28E3cu95A62BeNt3UGeZ20o" target="_blank" class="block w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold py-3 rounded-xl text-sm transition shadow-lg">
+        Get Pro Plan
+      </a>
+
+      <button onclick="togglePaywallModal()" class="text-xs text-slate-400 hover:text-slate-200 underline pt-1 block mx-auto">
+        Close / Maybe Later
+      </button>
+    </div>
+  </div>
+
   <!-- Modal: API Key Settings -->
   <div id="api-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 hidden z-50">
     <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 max-w-xs w-full space-y-4">
@@ -154,7 +203,7 @@
         🔑 OpenAI API Key Settings
       </h3>
       <p class="text-xs text-slate-400">
-        Enter your OpenAI API key (starts with `sk-`). Your key is stored locally only in your browser.
+        Enter your OpenAI API key (starts with `sk-`).
       </p>
       <input type="password" id="api-key-input" placeholder="sk-..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
       <div class="flex gap-2">
@@ -165,14 +214,26 @@
   </div>
 
   <script>
+    const MAX_FREE_MESSAGES = 5;
     let apiKey = localStorage.getItem("openai_api_key") || "";
+    let usageCount = parseInt(localStorage.getItem("ai_real_nihongo_usage") || "0");
+    let isProUser = localStorage.getItem("ai_real_nihongo_pro") === "true";
 
     const prompts = {
-      convenience: "You are a Japanese convenience store clerk talking to a foreign customer. Use natural, practical Japanese used in Japanese stores (warm up bento, plastic bags, point cards). For each AI response, provide: 1. The Japanese phrase (with Romaji & English translation), 2. Continue the roleplay naturally, 3. If the user made grammar/phrasing mistakes, kindly explain briefly in English.",
-      izakaya: "You are an Izakaya staff member taking orders. Respond in natural Japanese with Romaji & English translation, and guide the conversation.",
-      parttime: "You are an interviewer or senior staff at a part-time job. Interact in Japanese with Romaji & English translation.",
-      train: "You are a train station staff helping a commuter. Respond in practical Japanese with Romaji & English translation."
+      convenience: "You are a Japanese convenience store clerk talking to a foreign customer. Use natural, practical Japanese used in Japanese stores. For each AI response, provide: 1. Japanese phrase, 2. Romaji & English, 3. Brief helpful correction if needed.",
+      izakaya: "You are an Izakaya staff taking orders in Japan. Respond with Japanese, Romaji, and English.",
+      parttime: "You are an interviewer or senior staff at a part-time job. Interact with Japanese, Romaji, and English.",
+      train: "You are a train station staff helping a commuter. Respond with Japanese, Romaji, and English."
     };
+
+    function updateUsageDisplay() {
+      const remaining = Math.max(0, MAX_FREE_MESSAGES - usageCount);
+      document.getElementById("remaining-count").innerText = isProUser ? "∞" : remaining;
+    }
+
+    function togglePaywallModal() {
+      document.getElementById("paywall-modal").classList.toggle("hidden");
+    }
 
     function toggleApiModal() {
       const modal = document.getElementById("api-modal");
@@ -238,6 +299,13 @@
 
     async function sendMessage(e) {
       e.preventDefault();
+      
+      // Check Free Limits
+      if (!isProUser && usageCount >= MAX_FREE_MESSAGES) {
+        togglePaywallModal();
+        return;
+      }
+
       const input = document.getElementById("user-input");
       const text = input.value.trim();
       if (!text) return;
@@ -259,12 +327,19 @@
         setTimeout(() => {
           chatLog.innerHTML += `
             <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-300">
-              ⚠️ Please set your OpenAI API Key from top-right <strong>"🔑 API Settings"</strong> to start practicing with AI!
+              ⚠️️ Please set your OpenAI API Key from top-right <strong>"🔑 API"</strong> to start practicing!
             </div>
           `;
           chatLog.scrollTop = chatLog.scrollHeight;
         }, 500);
         return;
+      }
+
+      // Increment Usage Count
+      if (!isProUser) {
+        usageCount++;
+        localStorage.setItem("ai_real_nihongo_usage", usageCount);
+        updateUsageDisplay();
       }
 
       // Loading Indicator
@@ -277,7 +352,7 @@
       chatLog.scrollTop = chatLog.scrollHeight;
 
       const sit = document.getElementById("situation-select").value;
-      const systemPrompt = `${prompts[sit]}\nIMPORTANT: Keep the response compact. Provide Japanese, Romaji, English translation, and feedback if needed.`;
+      const systemPrompt = `${prompts[sit]}\nIMPORTANT: Keep the response compact with Japanese, Romaji, and English translation.`;
 
       try {
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -319,6 +394,7 @@
     }
 
     // Initialize
+    updateUsageDisplay();
     resetChat();
   </script>
 </body>
